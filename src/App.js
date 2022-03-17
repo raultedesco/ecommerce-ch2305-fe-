@@ -9,7 +9,6 @@ import Error from "./components/Error";
 import Login from "./components/Login";
 import Logout from "./components/Logout";
 import Register from "./components/Register";
-import Profile from "./components/Profile";
 import Chat from "./components/Chat";
 // Styles
 import "./App.css";
@@ -101,7 +100,6 @@ function App() {
               <Route path="/signin" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/logout" element={<Logout />} />
-              <Route path="/profile" element={<Profile />} />
 
               <Route path="*" element={<Error />} />
             </Routes>

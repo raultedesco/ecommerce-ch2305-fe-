@@ -31,8 +31,7 @@ export default function Header(props) {
         {userGlobal?.token ? 
         <>        
         <Link to='/Logout'> | Logout</Link>
-        <Link to='/profile'> | Profile</Link>
-        </>
+               </>
         :
         <>
         <Link to='/signin'> | Login</Link>
