@@ -1,24 +1,114 @@
-import logo from './logo.svg';
-import './App.css';
+import { useEffect, useState } from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { UserProvider } from "./context/userContext";
+// Components
+import Header from "./components/Header";
+import Home from "./components/Home";
+import Carrito from "./components/Carrito";
+import Error from "./components/Error";
+import Login from "./components/Login";
+import Logout from "./components/Logout";
+import Register from "./components/Register";
+import Profile from "./components/Profile";
+import Chat from "./components/Chat";
+// Styles
+import "./App.css";
+// Fake Data
+import data from "./data";
+import axios from "axios";
 
 function App() {
+  const [dataProducts, setDataProducts] = useState();
+  const { products } = data;
+  const [cartItems, setCartItems] = useState([]);
+
+  async function getProducts() {
+    try {
+      const response = await axios.get("https://ecommerce-ch2305.herokuapp.com/api/productos/");
+      console.log(response);
+      setDataProducts(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  useEffect(() => {
+    getProducts();
+  }, []);
+
+  const onAdd = (product) => {
+    const exist = cartItems.find((x) => x._id === product._id);
+    if (exist) {
+      setCartItems(
+        cartItems.map((x) =>
+          x._id === product._id ? { ...exist, qty: exist.qty + 1 } : x
+        )
+      );
+    } else {
+      setCartItems([...cartItems, { ...product, qty: 1 }]);
+    }
+  };
+  const onRemove = (product) => {
+    const exist = cartItems.find((x) => x._id === product._id);
+    if (exist.qty === 1) {
+      setCartItems(cartItems.filter((x) => x._id !== product._id));
+    } else {
+      setCartItems(
+        cartItems.map((x) =>
+          x._id === product._id ? { ...exist, qty: exist.qty - 1 } : x
+        )
+      );
+    }
+  };
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <UserProvider>
+      <Router>
+        <div className="App">
+          <Header countCartItems={cartItems.length}></Header>
+          <div className="row">
+            <Routes>
+              <Route
+                index="/"
+                element={
+                  <>
+                    <Home products={dataProducts} onAdd={onAdd} />
+                    <div>
+                      <div>
+                        <Carrito
+                          cartItems={cartItems}
+                          onAdd={onAdd}
+                          onRemove={onRemove}
+                        />
+                      </div>
+                      <div className="block col-1">
+                        <Chat></Chat>
+                      </div>
+                    </div>
+                  </>
+                }
+              />
+              <Route
+                path="/carrito"
+                element={
+                  <Carrito
+                    cartItems={cartItems}
+                    onAdd={onAdd}
+                    onRemove={onRemove}
+                  />
+                }
+              />
+
+              <Route path="/signin" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/logout" element={<Logout />} />
+              <Route path="/profile" element={<Profile />} />
+
+              <Route path="*" element={<Error />} />
+            </Routes>
+          </div>
+        </div>
+      </Router>
+    </UserProvider>
   );
 }
 
